@@ -124,6 +124,65 @@ int List_count(List* root) {
 
 /* ------ /list.h ------*/
 
+/* ------ saver.h ------*/
+List* DataBase_save(List* list) {
+	char* filename = "database.txt";
+
+	FILE* file;
+	file = fopen(filename, "w+");
+	// printf("File opened.\n");
+
+	for (int i=0; i<List_count(list); i++) {
+		// printf("User.\n");
+		User* user = (User*)List_at(list, i);
+		// User_print(user);
+		fprintf(file, "%s\t%s\t%i\t%.lf\n", user->name, user->surname, user->age, user->salary);
+	}
+
+	fclose(file);
+	// printf("File closed.\n");
+	printf("Database saved like %s\n", filename);
+
+	return list;
+}
+
+List* DataBase_load(List* list) {
+	char* filename = "database.txt";
+
+	FILE* file;
+	file = fopen(filename, "r");
+	// printf("File opened.\n");
+
+	char name[60];
+	char surname[60];
+	unsigned int age;
+	double salary;
+
+	int counter = 0;
+
+	while (fscanf(file, "%s%s%i%lf", name, surname, &age, &salary)!=-1) {
+		counter++;
+	}
+
+	fseek(file, 0, 0);
+
+	counter = 0;
+	while (fscanf(file, "%s%s%i%lf", name, surname, &age, &salary)!=-1) {
+		User* user = User_create(name, surname, age, salary);
+
+		counter++;
+		list = List_push(list, user);
+		// User_print(user);
+	}
+
+
+	fclose(file);
+	printf("Data uploaded from file: %s.\n", filename);
+
+	return list;
+}
+/* ------ /saver.h ------*/
+
 
 /* ------ app.h ------*/
 void App_deleteAllUsersFromList(List* root) {
@@ -138,15 +197,15 @@ void App_deleteAllUsersFromList(List* root) {
 }
 
 void App_printAllUserFromList(List* root) {
-	printf("+---------------+---------------+\n");
-	printf("|      id       |     name      |\n");
-	printf("+---------------+---------------+\n");
+	printf("+---------------+---------------+---------------+---------------+\n");
+	printf("|      id       |     name      |      age      |     salary    |\n");
+	printf("+---------------+---------------+---------------+---------------+\n");
 	
 	for (int i=0; i<List_count(root); i++){
 		User* user = (User*)List_at(root, i);
 
-		printf("|%15i|%15s|\n", i, user->name);
-		printf("+---------------+---------------+\n");
+		printf("|%15i|%15s|%15i|%15.lf|\n", i, user->name, user->age, user->salary);
+		printf("+---------------+---------------+---------------+---------------+\n");
 	}
 	printf("\n");
 }
@@ -157,9 +216,11 @@ int App_showMenu() {
 	printf("1. Print all users\n");
 	printf("2. Add new user\n");
 	printf("3. Delete user\n");
-	printf("4. Exit\n");
+	printf("4. Load from DB\n");
+	printf("5. Save to DB\n");
+	printf("6. Exit\n");
 	printf("\n");
-	printf("Input action [1-4]:\n");
+	printf("Input action [1-6]:\n");
 	
 	int id;
 	scanf("%d", &id);
@@ -170,37 +231,40 @@ int App_showMenu() {
 /* ------ /app.h ------*/
 
 int main(){
-	User* user1 = User_create("Vasia", "Ivanov", 25, 44);
-	User* user2 = User_create("Peter", "Sidorov", 24, 100);
-	User* user3 = User_create("Alex", "Markov", 24, 100);
+	// User* user1 = User_create("Vasia", "Ivanov", 25, 44);
+	// User* user2 = User_create("Peter", "Sidorov", 24, 100);
+	// User* user3 = User_create("Alex", "Markov", 24, 100);
 
+
+	// List* root = NULL;
+	// root = List_push(root, user1);
+	// root = List_push(root, user2);
+	// root = List_push(root, user3);
 
 	List* root = NULL;
-	root = List_push(root, user1);
-	root = List_push(root, user2);
-	root = List_push(root, user3);
+	// root = DataBase_load(root);
 
-	User_print((User*)List_at(root, 0));
-	User_print((User*)List_at(root, 1));
-	User_print((User*)List_at(root, 2));
-	User_print((User*)List_at(root, 0));
+	// User_print((User*)List_at(root, 0));
+	// User_print((User*)List_at(root, 1));
+	// User_print((User*)List_at(root, 2));
+	// User_print((User*)List_at(root, 0));
 	
-	//User_print(user1);
-	//User_print(user2);
+	// //User_print(user1);
+	// //User_print(user2);
 	
-	//User_delete(user1);
-	//User_delete(user2);
+	// //User_delete(user1);
+	// //User_delete(user2);
 	
-	//User_print(user1);
-	//User_print(user2);
+	// //User_print(user1);
+	// //User_print(user2);
 	
-	/*printf("%i\n", List_count(root));
-	App_printAllUserFromList(root);
-	App_deleteAllUsersFromList(root);*/
+	// /*printf("%i\n", List_count(root));
+	// App_printAllUserFromList(root);
+	// App_deleteAllUsersFromList(root);*/
 	
 	int action = 0;
 	
-	while (action!=4) {
+	while (action!=6) {
 		action = App_showMenu();
 		clrscr();
 		
@@ -210,21 +274,20 @@ int main(){
 			} break;
 			case 2: {
 				User tmp;
-				char surname[100];
 				
 				printf("Input user name: ");
 				scanf("%s", tmp.name);
 			
 				printf("Input user surname: ");
-				scanf("%s", surname);
+				scanf("%s", tmp.surname);
 				
 				printf("Input user age: ");
 				scanf("%d", &tmp.age);
 				
 				printf("Input user salary: ");
-				scanf("%fl", &tmp.salary);
+				scanf("%lf", &tmp.salary);
 				
-				root = List_push(root, User_create(tmp.name, surname, tmp.age, tmp.salary));
+				root = List_push(root, User_create(tmp.name, tmp.surname, tmp.age, tmp.salary));
 			} break;
 			case 3: {
 				int id;
@@ -236,9 +299,19 @@ int main(){
 				root = List_delete(root, id);
 				
 			} break;
+			case 4: {
+				root = DataBase_load(root);
+			} break;
+			case 5: {
+				root = DataBase_save(root);
+			} break;
 		}
 	}
 	
+	// List* list = NULL;
+
+	// DataBase_save(root);
+	// DataBase_load(list);
 	
 	
 	return 0;
