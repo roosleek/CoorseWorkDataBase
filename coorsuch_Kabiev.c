@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdlib.h>
 
+// clrscr() - функция очистки консоли
 void clrscr()
 {
     system("@cls||clear");
@@ -13,7 +13,7 @@ void clrscr()
 /* ------ user ------*/
 typedef struct User{
 	char name[60];
-	char* surname;
+	char surname[60];
 	unsigned int age;
 	double salary;
 } User;
@@ -21,9 +21,6 @@ typedef struct User{
 void User_fill(User* user, char* name, char* surname, int age, double salary){
 	if (user == NULL) return;
 	strcpy(user->name, name);
-	if (user->surname !=NULL)
-		free(user->surname);
-	user->surname = malloc((strlen(surname)+1)*sizeof(char));
 	strcpy(user->surname, surname);
 	user->age = age;
 	user->salary = salary;
@@ -31,7 +28,6 @@ void User_fill(User* user, char* name, char* surname, int age, double salary){
 
 User* User_create(char* name, char* surname, int age, double salary){
 	User* user = (User*)malloc(sizeof(User));
-	user->surname = NULL;
 	User_fill(user, name, surname, age, salary);
 	
 	return user;
@@ -39,8 +35,6 @@ User* User_create(char* name, char* surname, int age, double salary){
 
 void User_delete(User* user){
 	if (user == NULL) return;
-	if (user->surname !=NULL)
-		free(user->surname);
 	free(user);		
 }
 
@@ -79,27 +73,12 @@ List* List_push(List* root, void* data){
 	return root;
 }
 
-List* List_at(List* root, int id) {
-	List* current = root;
-	int i=0;
-	
-	while (current){
-		if (i==id) return current->data;
-		current = current->next;
-		i++;
-	}
-	return NULL;
-	
-}
-
-
 List* List_delete(List* root, int id) {
 	if (id == 0) {
 		List* next = root->next;
 		free(root);
 		return next;
 	}
-	
 	
 	List* current = root;
 	List* prev = current;
@@ -118,6 +97,18 @@ List* List_delete(List* root, int id) {
 	}
 	
 	return root;
+}
+
+List* List_at(List* root, int id) {
+	List* current = root;
+	int i=0;
+	
+	while (current){
+		if (i==id) return current->data;
+		current = current->next;
+		i++;
+	}
+	return NULL;
 }
 
 int List_count(List* root) {
