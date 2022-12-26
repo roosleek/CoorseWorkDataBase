@@ -184,6 +184,66 @@ List* DataBase_load(List* list) {
 /* ------ /saver.h ------*/
 
 
+void Viewer_sort_by_salary(List* list, int direction){
+	int total_users = List_count(list);
+
+	int order[total_users];
+	int order_rev[total_users];
+	double salaries[total_users];
+
+	int tmp_order;
+	double tmp_salary;
+
+	for (int i=0; i<total_users; i++) {
+		User* user = (User*)List_at(list, i);
+		order[i] = i;
+		salaries[i] = user->salary;
+	}
+
+    for (int i = 0; i < total_users; i++) {   
+        for (int j = 0; j < total_users - i - 1; j++) { 
+            if (salaries[j] > salaries[j + 1]) {  
+                tmp_salary = salaries[j];
+                salaries[j] = salaries[j + 1];
+                salaries[j + 1] = tmp_salary;
+
+                tmp_order = order[j];
+                order[j] = order[j + 1];
+                order[j + 1] = tmp_order;
+            }
+        }
+    }
+	User* pUsers = (User*) malloc(sizeof(User)*total_users);
+	if (direction==2) {
+		for (int i=0; i<total_users; i++) {
+			order_rev[total_users-i-1]=order[i];
+		}
+		for (int i=0; i<total_users; i++) {
+			order[i]=order_rev[i];
+		}
+	}
+
+
+	for (int i=0; i<total_users; i++){
+		User* user = (User*)List_at(list, order[i]);
+		strcpy(pUsers[i].name, user->name);
+		strcpy(pUsers[i].surname, user->surname);
+		pUsers[i].age = user->age;
+		pUsers[i].salary = user->salary;
+	}
+	
+	for (int i=0; i<total_users; i++){
+		User* user = (User*)List_at(list, i);
+		strcpy(user->name, pUsers[i].name);
+		strcpy(user->surname, pUsers[i].surname);
+		user->age = pUsers[i].age;
+		user->salary = pUsers[i].salary;
+	}
+
+	free(pUsers);
+}
+
+
 /* ------ app.h ------*/
 void App_deleteAllUsersFromList(List* root) {
 	for (int i=List_count(root)-1; i>=0; i--){
@@ -219,6 +279,7 @@ int App_showMenu() {
 	printf("4. Load from DB\n");
 	printf("5. Save to DB\n");
 	printf("6. Exit\n");
+	printf("7. Sort by salary");
 	printf("\n");
 	printf("Input action [1-6]:\n");
 	
@@ -305,6 +366,15 @@ int main(){
 			case 5: {
 				root = DataBase_save(root);
 			} break;
+			case 7: {
+				int direction;
+				printf("1. from min to max\n");
+				printf("2. from max to min\n");
+
+				scanf("%d", &direction);
+				printf("Sorted by salary.\n");
+				Viewer_sort_by_salary(root, direction);
+			}
 		}
 	}
 	
