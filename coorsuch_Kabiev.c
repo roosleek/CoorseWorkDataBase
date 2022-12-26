@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define NAME_LENGTH 60
 
 // clrscr() - функция очистки консоли
 void clrscr()
@@ -12,8 +13,8 @@ void clrscr()
 
 /* ------ user ------*/
 typedef struct User{
-	char name[60];
-	char surname[60];
+	char name[NAME_LENGTH];
+	char surname[NAME_LENGTH];
 	unsigned int age;
 	double salary;
 } User;
@@ -153,8 +154,8 @@ List* DataBase_load(List* list) {
 	file = fopen(filename, "r");
 	// printf("File opened.\n");
 
-	char name[60];
-	char surname[60];
+	char name[NAME_LENGTH];
+	char surname[NAME_LENGTH];
 	unsigned int age;
 	double salary;
 
@@ -294,6 +295,83 @@ void Viewer_filter_by_name(List* list, const char const *name) {
 }
 
 
+void Viewer_sort_by_name(List* list, int direction){
+	int total_users = List_count(list);
+
+	int order[total_users];
+	int order_rev[total_users];
+	char names[total_users][NAME_LENGTH];
+
+	int tmp_order;
+	char tmp_name[NAME_LENGTH];
+	int flag = 0;
+
+	for (int i=0; i<total_users; i++) {
+		User* user = (User*)List_at(list, i);
+		order[i] = i;
+		strcpy(&names[i][0], user->name);
+	}
+
+    for (int i = 0; i < total_users; i++) {   
+        for (int j = 0; j < total_users - i - 1; j++) { 
+			for (int k = 0; k < NAME_LENGTH-1; k++) {
+				// printf("%c   %c\n", names[j][k], names[j+1][k]);
+				if ((names[j][k] < names[j+1][k]) || (names[j][k]=='\0')) {
+					// printf("break \\0\n");
+					// flag = 1;
+					break;
+				}
+				if ((names[j][k] > names[j+1][k]) || (names[j+1][k]=='\0')){  
+					
+					strcpy(tmp_name, &names[j][0]);
+					strcpy(&names[j][0], &names[j+1][0]);
+					strcpy(&names[j+1][0], tmp_name);
+
+
+					tmp_order = order[j];
+					order[j] = order[j + 1];
+					order[j + 1] = tmp_order;
+					// printf("break switch \\0\n");
+					flag = 1;
+					break;
+				}
+			}
+			// if (flag == 1) {
+			// 	flag = 0;
+			// 	break;
+			// }
+        }
+    }
+	User* pUsers = (User*) malloc(sizeof(User)*total_users);
+	if (direction==2) {
+		for (int i=0; i<total_users; i++) {
+			order_rev[total_users-i-1]=order[i];
+		}
+		for (int i=0; i<total_users; i++) {
+			order[i]=order_rev[i];
+		}
+	}
+
+
+	for (int i=0; i<total_users; i++){
+		User* user = (User*)List_at(list, order[i]);
+		strcpy(pUsers[i].name, user->name);
+		strcpy(pUsers[i].surname, user->surname);
+		pUsers[i].age = user->age;
+		pUsers[i].salary = user->salary;
+	}
+	
+	for (int i=0; i<total_users; i++){
+		User* user = (User*)List_at(list, i);
+		strcpy(user->name, pUsers[i].name);
+		strcpy(user->surname, pUsers[i].surname);
+		user->age = pUsers[i].age;
+		user->salary = pUsers[i].salary;
+	}
+
+	free(pUsers);
+}
+
 /* ------ /viewer.h ------*/
 
 
@@ -335,8 +413,9 @@ int App_showMenu() {
 	printf("7. Sort by salary\n");
 	printf("8. Filter by salary\n");
 	printf("9. Filter by name\n");
+	printf("10. Sort by name\n");
 	printf("\n");
-	printf("Input action [1-6]:\n");
+	printf("Input action [1-10]:\n");
 	
 	int id;
 	scanf("%d", &id);
@@ -449,6 +528,15 @@ int main(){
 				scanf("%s", name);
 
 				Viewer_filter_by_name(root, name);
+			} break;
+			case 10: {
+				int direction;
+				printf("1. from min to max\n");
+				printf("2. from max to min\n");
+
+				scanf("%d", &direction);
+				printf("Sorted by name.\n");
+				Viewer_sort_by_name(root, direction);
 			} break;
 		}
 	}
