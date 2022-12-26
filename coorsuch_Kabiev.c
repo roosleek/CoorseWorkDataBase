@@ -183,7 +183,7 @@ List* DataBase_load(List* list) {
 }
 /* ------ /saver.h ------*/
 
-
+/* ------ viewer.h ------*/
 void Viewer_sort_by_salary(List* list, int direction){
 	int total_users = List_count(list);
 
@@ -243,6 +243,26 @@ void Viewer_sort_by_salary(List* list, int direction){
 	free(pUsers);
 }
 
+void Viewer_filter_by_salary(List* list, double min_val, double max_val) {
+	int total_users = List_count(list);
+	printf("+---------------+---------------+---------------+---------------+\n");
+	printf("|      id       |     name      |      age      |     salary    |\n");
+	printf("+---------------+---------------+---------------+---------------+\n");
+	
+	for (int i=0; i<List_count(list); i++){
+		User* user = (User*)List_at(list, i);
+
+		if ((user->salary >= min_val) && (user->salary <=max_val)) {
+			printf("|%15i|%15s|%15i|%15.lf|\n", i, user->name, user->age, user->salary);
+			printf("+---------------+---------------+---------------+---------------+\n");
+		}
+	}
+	printf("\n");
+}
+
+
+/* ------ /viewer.h ------*/
+
 
 /* ------ app.h ------*/
 void App_deleteAllUsersFromList(List* root) {
@@ -279,7 +299,8 @@ int App_showMenu() {
 	printf("4. Load from DB\n");
 	printf("5. Save to DB\n");
 	printf("6. Exit\n");
-	printf("7. Sort by salary");
+	printf("7. Sort by salary\n");
+	printf("8. Filter by salary\n");
 	printf("\n");
 	printf("Input action [1-6]:\n");
 	
@@ -374,7 +395,19 @@ int main(){
 				scanf("%d", &direction);
 				printf("Sorted by salary.\n");
 				Viewer_sort_by_salary(root, direction);
-			}
+			} break;
+			case 8: {
+				double min_val;
+				double max_val;
+
+				printf("Enter min value of salary:\n");
+				scanf("%lf", &min_val);
+				
+				printf("Enter max value of salary:\n");
+				scanf("%lf", &max_val);
+
+				Viewer_filter_by_salary(root, min_val, max_val);
+			} break;
 		}
 	}
 	
