@@ -261,6 +261,39 @@ void Viewer_filter_by_salary(List* list, double min_val, double max_val) {
 }
 
 
+
+void Viewer_filter_by_name(List* list, const char const *name) {
+	int total_users = List_count(list);
+	printf("+---------------+---------------+---------------+---------------+\n");
+	printf("|      id       |     name      |      age      |     salary    |\n");
+	printf("+---------------+---------------+---------------+---------------+\n");
+	
+	int len = 0;
+	while (name[len] != '\0'){
+		len++;
+	}
+
+	int flag;
+	for (int i=0; i<List_count(list); i++){
+		User* user = (User*)List_at(list, i);
+		flag = 1;
+
+		for (int j=0; j<len; j++){
+			if (user->name[j] != name[j]) {
+				flag = 0;
+				break;
+			}
+		}
+
+		if (flag) {
+			printf("|%15i|%15s|%15i|%15.lf|\n", i, user->name, user->age, user->salary);
+			printf("+---------------+---------------+---------------+---------------+\n");
+		}
+	}
+	printf("\n");
+}
+
+
 /* ------ /viewer.h ------*/
 
 
@@ -301,6 +334,7 @@ int App_showMenu() {
 	printf("6. Exit\n");
 	printf("7. Sort by salary\n");
 	printf("8. Filter by salary\n");
+	printf("9. Filter by name\n");
 	printf("\n");
 	printf("Input action [1-6]:\n");
 	
@@ -407,6 +441,14 @@ int main(){
 				scanf("%lf", &max_val);
 
 				Viewer_filter_by_salary(root, min_val, max_val);
+			} break;
+			case 9: {
+				char name[60];
+
+				printf("Enter name:\n");
+				scanf("%s", name);
+
+				Viewer_filter_by_name(root, name);
 			} break;
 		}
 	}
